@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rotina de Trabalho - A Vida com Marcos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page-container { width: 100%; max-width: 900px; padding: 40px 20px; z-index: 1; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px; color: var(--blue);
+      text-decoration: none; font-weight: 600; margin-bottom: 30px; padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      border-radius: 12px; transition: all 0.3s ease;
+    }
+    .btn-back:hover { background: rgba(0, 210, 255, 0.15); transform: translateX(-5px); }
+    .detail-card {
+      background: var(--card-bg); border: 1px solid var(--glass-border);
+      border-radius: 24px; padding: 40px; backdrop-filter: blur(16px);
+    }
+    .shift-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px; margin: 25px 0;
+    }
+    .shift-box {
+      background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 230, 118, 0.2);
+      border-radius: 12px; padding: 18px; text-align: center;
+    }
+    .shift-box h4 { color: var(--green); margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-3d-container">
+    <div class="ring-3d ring-1"></div>
+    <div class="sphere-3d sphere-2"></div>
+  </div>
+
+  <div class="page-container">
+    <a href="index.html" class="btn-back">⬅ Voltar ao Painel</a>
+
+    <div class="detail-card">
+      <div class="card-header" style="justify-content: flex-start; gap: 15px;">
+        <div class="card-icon" style="font-size: 2.5rem; width: 70px; height: 70px;">🛒</div>
+        <div>
+          <span class="card-tag">Profissional</span>
+          <h1 style="font-size: 2.2rem; margin-top: 5px;">Trabalho no Mercado</h1>
+        </div>
+      </div>
+
+      <p class="card-desc" style="font-size: 1.05rem; margin-top: 20px;">
+        Gestão das obrigações profissionais no mercado. Atividades focadas na organização do estoque, atendimento aos clientes e manutenção do setor.
+      </p>
+
+      <div class="shift-grid">
+        <div class="shift-box">
+          <h4>🌅 Turno Manhã</h4>
+          <p style="font-size: 0.85rem; color: #a0a0b8;">Recepção de mercadorias & Organização de gôndolas</p>
+        </div>
+        <div class="shift-box">
+          <h4>☀️ Turno Tarde</h4>
+          <p style="font-size: 0.85rem; color: #a0a0b8;">Atendimento direto & Checagem de validade</p>
+        </div>
+        <div class="shift-box">
+          <h4>🌙 Encerramento</h4>
+          <p style="font-size: 0.85rem; color: #a0a0b8;">Conferência final & Limpeza da área</p>
+        </div>
+      </div>
+
+      <h3 class="modal-section-title">Checklist do Turno</h3>
+      <div class="checklist" id="trabalhoChecklist"></div>
+
+      <div class="modal-tip" style="margin-top: 25px;">
+        ⚡ Lembre-se: Mantenha sempre a postura proativa e um sorriso no rosto durante o atendimento!
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tasks = [
+      "Conferir prazos de validade das gôndolas principais",
+      "Reabastecer produtos com menor estoque no corredor",
+      "Manter a precificação correta e visível",
+      "Auxiliar clientes com dúvidas sobre localização de itens",
+      "Deixar a área de trabalho limpa para o próximo turno"
+    ];
+
+    const container = document.getElementById('trabalhoChecklist');
+    const storageKey = 'checklist_trabalho';
+
+    function loadChecklist() {
+      const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
+      container.innerHTML = '';
+      tasks.forEach((task, idx) => {
+        const checked = saved[idx] ? 'checked' : '';
+        const item = document.createElement('label');
+        item.className = 'check-item';
+        item.innerHTML = `
+          <input type="checkbox" id="task-${idx}" ${checked} onchange="saveChecklist()">
+          <span>${task}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function saveChecklist() {
+      const state = {};
+      tasks.forEach((_, idx) => {
+        const chk = document.getElementById(`task-${idx}`);
+        if (chk) state[idx] = chk.checked;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    loadChecklist();
+  </script>
+</body>
+</html>

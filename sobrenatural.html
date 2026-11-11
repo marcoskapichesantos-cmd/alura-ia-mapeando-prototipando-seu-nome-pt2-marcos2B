@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistir Sobrenatural - A Vida com Marcos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page-container { width: 100%; max-width: 900px; padding: 40px 20px; z-index: 1; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px; color: var(--blue);
+      text-decoration: none; font-weight: 600; margin-bottom: 30px; padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      border-radius: 12px; transition: all 0.3s ease;
+    }
+    .btn-back:hover { background: rgba(0, 210, 255, 0.15); transform: translateX(-5px); }
+    .detail-card {
+      background: var(--card-bg); border: 1px solid var(--glass-border);
+      border-radius: 24px; padding: 40px; backdrop-filter: blur(16px);
+    }
+    .episode-tracker {
+      background: rgba(255, 234, 0, 0.05); border: 1px solid rgba(255, 234, 0, 0.2);
+      border-radius: 16px; padding: 20px; margin: 25px 0; text-align: center;
+    }
+    .tracker-input {
+      background: #06060c; border: 1px solid var(--glass-border); color: #fff;
+      padding: 10px 15px; border-radius: 8px; width: 80px; text-align: center; font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-3d-container">
+    <div class="cube-3d cube-3"><div class="front"></div><div class="back"></div><div class="right"></div><div class="left"></div><div class="top"></div><div class="bottom"></div></div>
+  </div>
+
+  <div class="page-container">
+    <a href="index.html" class="btn-back">⬅ Voltar ao Painel</a>
+
+    <div class="detail-card">
+      <div class="card-header" style="justify-content: flex-start; gap: 15px;">
+        <div class="card-icon" style="font-size: 2.5rem; width: 70px; height: 70px;">🎬</div>
+        <div>
+          <span class="card-tag">Lazer & Entretenimento</span>
+          <h1 style="font-size: 2.2rem; margin-top: 5px;">Assistir Sobrenatural</h1>
+        </div>
+      </div>
+
+      <p class="card-desc" style="font-size: 1.05rem; margin-top: 20px;">
+        Momento para desconectar e desfrutar do entretenimento. Maratona das aventuras de Dean e Sam Winchester na caça a demônios e criaturas fantásticas.
+      </p>
+
+      <!-- REGISTRO DE EPISÓDIOS -->
+      <div class="episode-tracker">
+        <h3 style="color: var(--yellow); margin-bottom: 10px;">🚗 Rastreador da Maratona (Impala 67)</h3>
+        <p style="margin-bottom: 12px; font-size: 0.9rem; color: #c0c0d8;">Qual temporada e episódio você está assistindo agora?</p>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+          <span>Temporada:</span>
+          <input type="number" id="tempInput" class="tracker-input" value="1" min="1" max="15" onchange="saveEpisode()">
+          <span>Episódio:</span>
+          <input type="number" id="epInput" class="tracker-input" value="1" min="1" max="23" onchange="saveEpisode()">
+        </div>
+      </div>
+
+      <h3 class="modal-section-title">Preparativos para a Maratona</h3>
+      <div class="checklist" id="snChecklist"></div>
+
+      <div class="modal-tip" style="margin-top: 25px;">
+        🍿 Frase Clássica: "Saving people, hunting things, the family business." — Dean Winchester.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tasks = [
+      "Escolher o episódio/temporada da noite",
+      "Fazer pipoca quentinha com refrigerante gelado",
+      "Apagar as luzes do quarto para clima de cinema",
+      "Pausar notificações do telefone para não atrapalhar",
+      "Aproveitar o episódio sem se preocupar com problemas"
+    ];
+
+    const container = document.getElementById('snChecklist');
+    const storageKey = 'checklist_sobrenatural';
+
+    function loadChecklist() {
+      const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
+      container.innerHTML = '';
+      tasks.forEach((task, idx) => {
+        const checked = saved[idx] ? 'checked' : '';
+        const item = document.createElement('label');
+        item.className = 'check-item';
+        item.innerHTML = `
+          <input type="checkbox" id="task-${idx}" ${checked} onchange="saveChecklist()">
+          <span>${task}</span>
+        `;
+        container.appendChild(item);
+      });
+
+      // Carregar Temporada / Ep
+      const savedEp = JSON.parse(localStorage.getItem('sn_tracker')) || { temp: 1, ep: 1 };
+      document.getElementById('tempInput').value = savedEp.temp;
+      document.getElementById('epInput').value = savedEp.ep;
+    }
+
+    function saveChecklist() {
+      const state = {};
+      tasks.forEach((_, idx) => {
+        const chk = document.getElementById(`task-${idx}`);
+        if (chk) state[idx] = chk.checked;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function saveEpisode() {
+      const temp = document.getElementById('tempInput').value;
+      const ep = document.getElementById('epInput').value;
+      localStorage.setItem('sn_tracker', JSON.stringify({ temp, ep }));
+    }
+
+    loadChecklist();
+  </script>
+</body>
+</html>

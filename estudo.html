@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rotina de Estudo - A Vida com Marcos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .page-container {
+      width: 100%;
+      max-width: 900px;
+      padding: 40px 20px;
+      z-index: 1;
+    }
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 30px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    .btn-back:hover {
+      background: rgba(0, 210, 255, 0.15);
+      transform: translateX(-5px);
+    }
+    .detail-card {
+      background: var(--card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      backdrop-filter: blur(16px);
+      margin-bottom: 30px;
+    }
+    .pomodoro-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 210, 255, 0.3);
+      border-radius: 16px;
+      padding: 25px;
+      text-align: center;
+      margin: 30px 0;
+    }
+    .timer-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--yellow);
+      letter-spacing: 2px;
+      margin: 15px 0;
+    }
+    .timer-btn {
+      background: var(--tri-gradient);
+      border: none;
+      color: #000;
+      padding: 12px 30px;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      margin: 5px;
+      transition: transform 0.2s;
+    }
+    .timer-btn:hover { transform: scale(1.05); }
+    .timer-btn.reset { background: rgba(255, 255, 255, 0.2); color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-3d-container">
+    <div class="cube-3d cube-1"><div class="front"></div><div class="back"></div><div class="right"></div><div class="left"></div><div class="top"></div><div class="bottom"></div></div>
+    <div class="sphere-3d sphere-1"></div>
+  </div>
+
+  <div class="page-container">
+    <a href="index.html" class="btn-back">⬅ Voltar ao Painel</a>
+
+    <div class="detail-card">
+      <div class="card-header" style="justify-content: flex-start; gap: 15px;">
+        <div class="card-icon" style="font-size: 2.5rem; width: 70px; height: 70px;">📚</div>
+        <div>
+          <span class="card-tag">Foco & Aprendizado</span>
+          <h1 style="font-size: 2.2rem; margin-top: 5px;">Rotina de Estudos</h1>
+        </div>
+      </div>
+
+      <p class="card-desc" style="font-size: 1.05rem; margin-top: 20px;">
+        Plano de estudos diário do Marcos. A meta é garantir blocos de concentração ininterrupta utilizando o método Pomodoro (25 min de foco + 5 min de descanso).
+      </p>
+
+      <!-- TEMPORIZADOR POMODORO -->
+      <div class="pomodoro-box">
+        <h3 style="color: var(--blue);">⏱️ Cronômetro Pomodoro</h3>
+        <div class="timer-display" id="timer">25:00</div>
+        <button class="timer-btn" onclick="startTimer()">Iniciar Foco</button>
+        <button class="timer-btn reset" onclick="pauseTimer()">Pausar</button>
+        <button class="timer-btn reset" onclick="resetTimer()">Resetar</button>
+      </div>
+
+      <h3 class="modal-section-title">Checklist Diário de Estudos</h3>
+      <div class="checklist" id="estudoChecklist"></div>
+
+      <div class="modal-tip" style="margin-top: 25px;">
+        💡 Dica: Elimine as distrações do celular colocando-o em modo "Não Perturbe" durante a sessão.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tasks = [
+      "Revisar anotações e resumos anteriores",
+      "Assistir 1 aula ou ler 1 capítulo técnico",
+      "Resolver no mínimo 10 exercícios práticos",
+      "Anotar pontos de dúvida para pesquisar depois",
+      "Organizar arquivos e pasta de estudos no computador"
+    ];
+
+    const container = document.getElementById('estudoChecklist');
+    const storageKey = 'checklist_estudo';
+
+    function loadChecklist() {
+      const saved = JSON.parse(localStorage.getItem(storageKey)) || {};
+      container.innerHTML = '';
+      tasks.forEach((task, idx) => {
+        const checked = saved[idx] ? 'checked' : '';
+        const item = document.createElement('label');
+        item.className = 'check-item';
+        item.innerHTML = `
+          <input type="checkbox" id="task-${idx}" ${checked} onchange="saveChecklist()">
+          <span>${task}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function saveChecklist() {
+      const state = {};
+      tasks.forEach((_, idx) => {
+        const chk = document.getElementById(`task-${idx}`);
+        if (chk) state[idx] = chk.checked;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    // Cronômetro
+    let timeLeft = 1500;
+    let timerId = null;
+
+    function updateDisplay() {
+      const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+      const s = String(timeLeft % 60).padStart(2, '0');
+      document.getElementById('timer').textContent = `${m}:${s}`;
+    }
+
+    function startTimer() {
+      if (timerId) return;
+      timerId = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateDisplay();
+        } else {
+          clearInterval(timerId);
+          alert('Sessão de Foco concluída! Hora de descansar.');
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerId);
+      timerId = null;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timeLeft = 1500;
+      updateDisplay();
+    }
+
+    loadChecklist();
+  </script>
+</body>
+</html>
